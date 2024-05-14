@@ -9,40 +9,36 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Illuminate\Support\Facades\Auth;
 
-
 class JwtAuthMiddleware
 {
     public function handle($request, Closure $next, $guard = null)
     {
         // get token from header
         $token = $request->header('Authorization');
-        if(!$token) {
+        if (! $token) {
             // Unauthorized response if token not there
             return response()->json([
-                'error' => 'Token not provided.'
+                'error' => 'Token not provided.',
             ], 401);
         }
 
         try {
-            // remove Bearer from token
+            // remove "Bearer" word from token
             $token = substr($token, 7);
 
             // decode token
             $decodedToken = JWT::decode($token, new Key(config('app.jwt_secret'), 'HS256'));
 
-            // get credentials from token
-            $publicKey = $decodedToken->public_key;
-
-            $merchant = Merchant::where('public_key', $publicKey)->firstOrFail();
+            // get merchant from uuid
+            $merchant = Merchant::where('uuid', $decodedToken->merchant_id)->firstOrFail();
 
             //define Auth::user() to be the merchant
             Auth::setUser($merchant);
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
-                'error' => 'Unauthorized access.'
+                'error' => 'Unauthorized access.',
             ], 400);
         }
-
 
         return $next($request);
     }

@@ -12,23 +12,22 @@ class PaymentMethodsSeeder extends Seeder
      */
     public function run(): void
     {
-
         PaymentMethod::create([
             'name' => 'Bank Transfer',
             'slug' => 'bank-transfer',
-            'fee' => 4,
+            'fee' => 0.04,
         ]);
 
         PaymentMethod::create([
             'name' => 'Boleto',
             'slug' => 'boleto',
-            'fee' => 2,
+            'fee' => 0.02,
         ]);
 
         PaymentMethod::create([
             'name' => 'pix',
             'slug' => 'pix',
-            'fee' => 3.5,
+            'fee' => 0.035,
         ]);
     }
 }

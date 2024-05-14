@@ -8,22 +8,25 @@ use App\Models\Payment;
 use App\Services\PaymentMethod\BankTransfer;
 use App\Services\PaymentMethod\Boleto;
 use App\Services\PaymentMethod\Pix;
+use Illuminate\Support\Facades\Log;
 
 class PaymentsService
 {
-
-    public function processPayment(Merchant $merchant, $paymentMethodSlug, $nameClient, $clientCpf, $description, $amount  ) : array
+    public function processPayment(Merchant $merchant, $paymentMethodSlug, $nameClient, $clientCpf, $description, $amount): array
     {
         $paymentMethodService = match ($paymentMethodSlug) {
             'pix' => new Pix(),
             'bank-transfer' => new BankTransfer(),
             'boleto' => new Boleto(),
-            default => throw new \Exception('Payment method not found'),
+            default => function () use ($paymentMethodSlug) {
+                Log::critical('ERROR_PAYMENT_METHOD_NOT_FOUND', ['payment_method_slug' => $paymentMethodSlug]);
+                throw new \Exception('Payment method not found');
+            },
         };
 
-        $paymentResult = $paymentMethodService->pay($merchant, $nameClient, $clientCpf, $description, $amount);
+        $paymentResult = $paymentMethodService->pay($amount);
 
-        try{
+        try {
             Payment::create([
                 'merchant_id' => $merchant->id,
                 'payment_method_slug' => $paymentMethodSlug,
@@ -36,6 +39,8 @@ class PaymentsService
                 'paid_at' => now(),
             ]);
         } catch (\Exception $e) {
+            Log::critical('ERROR_PAYMENT_NOT_SAVED', ['error' => $e->getMessage()]);
+
             return [
                 'status' => (PaymentStatusEnum::FAILED)->value,
                 'risk_percentage' => $paymentResult['risk_percentage'],

@@ -14,7 +14,6 @@ class PaymentsTest extends TestCase
     {
         $response = $this->post('/api/v1/payments');
 
-
         $response->assertStatus(204);
     }
 }

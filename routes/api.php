@@ -3,7 +3,6 @@
 use App\Http\Controllers\Api\V1\PaymentsController;
 use Illuminate\Support\Facades\Route;
 
-
 Route::get('/ping', function () {
     return response()->json(['message' => 'Pong. You are authenticated.']);
 });

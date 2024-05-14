@@ -1,0 +1,423 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Endpoints",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/v1/payments": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Get list of payments",
+                "description": "Returns list of payments",
+                "operationId": "3a1bc0db8e63521f5f60c71d0549fd3e",
+                "parameters": [
+                    {
+                        "name": "payment_method_slug",
+                        "in": "query",
+                        "description": "Filter payments by payment method slug",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter payments by status",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payments": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Payment"
+                                            }
+                                        },
+                                        "meta": {
+                                            "properties": {
+                                                "total": {
+                                                    "description": "Total count of payments",
+                                                    "type": "integer"
+                                                },
+                                                "sum": {
+                                                    "description": "Sum of payment amounts",
+                                                    "type": "number",
+                                                    "format": "float"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Create a new payment",
+                "description": "Creates and validates a new payment, charge the fee correspondent to the payment method used and return its status.",
+                "operationId": "e4eb9cbe81835e2edb7d1407e70c872c",
+                "requestBody": {
+                    "description": "Payment data",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "payment_method_slug": {
+                                        "description": "The slug of the payment method",
+                                        "type": "string",
+                                        "enum": [
+                                            "boleto",
+                                            "pix",
+                                            "bank-transfer"
+                                        ]
+                                    },
+                                    "name_client": {
+                                        "description": "The name of the client",
+                                        "type": "string"
+                                    },
+                                    "cpf": {
+                                        "description": "The CPF of the client",
+                                        "type": "string"
+                                    },
+                                    "description": {
+                                        "description": "The description of the payment",
+                                        "type": "string"
+                                    },
+                                    "amount": {
+                                        "description": "The amount of the payment",
+                                        "type": "number",
+                                        "format": "float"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "examples": {
+                                "boleto": {
+                                    "summary": "Boleto Payment",
+                                    "value": {
+                                        "name_client": "Pedro Paulo",
+                                        "cpf": "759.251.010-30",
+                                        "description": "Bet Grêmio X Palmeiras",
+                                        "amount": 10000000000000,
+                                        "payment_method_slug": "boleto"
+                                    }
+                                },
+                                "pix": {
+                                    "summary": "Pix Payment",
+                                    "value": {
+                                        "name_client": "Paulo Pedro",
+                                        "cpf": "207.645.680-51",
+                                        "description": "Bet Grêmio X Inter",
+                                        "amount": 123.5,
+                                        "payment_method_slug": "pix"
+                                    }
+                                },
+                                "bank-transfer": {
+                                    "summary": "Bank Transfer Payment",
+                                    "value": {
+                                        "name_client": "João Paulo",
+                                        "cpf": "561.999.390-69",
+                                        "description": "Bet Grêmio X Flamengo",
+                                        "amount": 100.22,
+                                        "payment_method_slug": "bank-transfer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Payment created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "description": "The status of the payment",
+                                            "type": "string"
+                                        },
+                                        "risk_percentage": {
+                                            "description": "The risk percentage of the payment",
+                                            "type": "number",
+                                            "format": "float"
+                                        },
+                                        "message": {
+                                            "description": "The message related to the payment status",
+                                            "type": "string"
+                                        },
+                                        "status_code": {
+                                            "description": "The HTTP status code",
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Payment creation failed"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/api/v1/payments/{id}": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "summary": "Get a specific payment",
+                "description": "Returns a specific payment by its id",
+                "operationId": "3f6cda28d5e13def7e22c3cc9fa1d22c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the payment to return",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "payment": {
+                                            "$ref": "#/components/schemas/Payment"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Payment not found"
+                    },
+                    "401": {
+                        "description": "Unauthenticated"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/demo-random-token": {
+            "get": {
+                "tags": [
+                    "Demo"
+                ],
+                "summary": "Generate a random JWT token",
+                "description": "This endpoint generates a random JWT token for a randomly selected merchant.",
+                "operationId": "b1446a5da84297eb68329039a1f9c6f6",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "token": {
+                                            "description": "The generated JWT token",
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No merchants found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "PaymentMethodSlugEnum": {
+                "description": "The payment method slugs of the payment",
+                "type": "string",
+                "enum": [
+                    "boleto",
+                    "pix",
+                    "bank-transfer"
+                ]
+            },
+            "PaymentStatusEnum": {
+                "description": "The status of the payment",
+                "type": "string",
+                "enum": [
+                    "pending",
+                    "paid",
+                    "expired",
+                    "failed"
+                ]
+            },
+            "Merchant": {
+                "required": [
+                    "saldo"
+                ],
+                "properties": {
+                    "saldo": {
+                        "description": "The balance of the merchant",
+                        "type": "number",
+                        "format": "dec"
+                    }
+                },
+                "type": "object"
+            },
+            "Payment": {
+                "required": [
+                    "name_client",
+                    "cpf",
+                    "description",
+                    "amount",
+                    "fee",
+                    "status",
+                    "payment_method_slug",
+                    "paid_at",
+                    "merchant_id"
+                ],
+                "properties": {
+                    "name_client": {
+                        "description": "The name of the client",
+                        "type": "string"
+                    },
+                    "cpf": {
+                        "description": "The CPF of the client",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "The description of the payment",
+                        "type": "string"
+                    },
+                    "amount": {
+                        "description": "The amount of the payment",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "fee": {
+                        "description": "The fee of the payment",
+                        "type": "number",
+                        "format": "float,0:2"
+                    },
+                    "status": {
+                        "description": "The status of the payment",
+                        "type": "string",
+                        "enum": [
+                            "pending",
+                            "paid",
+                            "expired",
+                            "failed"
+                        ]
+                    },
+                    "payment_method_slug": {
+                        "description": "The slug of the payment method",
+                        "type": "string",
+                        "enum": [
+                            "boleto",
+                            "pix",
+                            "bank-transfer"
+                        ]
+                    },
+                    "paid_at": {
+                        "description": "The date and time when the payment was made",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "merchant_id": {
+                        "description": "The ID of the merchant",
+                        "type": "integer"
+                    }
+                },
+                "type": "object"
+            },
+            "PaymentMethod": {
+                "required": [
+                    "name",
+                    "slug",
+                    "fee"
+                ],
+                "properties": {
+                    "name": {
+                        "description": "The name of the payment method",
+                        "type": "string"
+                    },
+                    "slug": {
+                        "description": "The slug of the payment method",
+                        "type": "string",
+                        "enum": [
+                            "boleto",
+                            "pix",
+                            "bank-transfer"
+                        ]
+                    },
+                    "fee": {
+                        "description": "The fee of the payment method that will be retained by SFP Pay",
+                        "type": "number",
+                        "format": "float"
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT",
+                "description": "Public key provided for each merchant to authenticate the request",
+                "name": "public_key",
+                "in": "header"
+            }
+        }
+    },
+    "security": [
+        {
+            "bearerAuth": [
+                "read"
+            ]
+        }
+    ]
+}
