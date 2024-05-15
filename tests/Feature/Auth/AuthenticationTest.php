@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
+use App\Models\Merchant;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -10,45 +10,38 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_login_screen_can_be_rendered(): void
+    public function test_demo_random_token_cannot_be_accessed_in_prod(): void
     {
-        $response = $this->get('/login');
+        // force change environment to prod
+        putenv('APP_ENV=production');
+        $response = $this->get('/demo-random-token');
+
+        $response->assertStatus(400);
+    }
+
+    public function test_demo_random_token_can_be_accessed_in_local_with_no_results(): void
+    {
+        // change environment to prod
+        config(['app.env' => 'local']);
+
+        $response = $this->get('/demo-random-token');
+
+        $response->assertStatus(404);
+    }
+
+    public function test_demo_random_token_can_be_accessed_in_local_with_results(): void
+    {
+        // change environment to prod
+        config(['app.env' => 'local']);
+
+        Merchant::factory(5)->create();
+
+        $response = $this->get('/demo-random-token');
 
         $response->assertStatus(200);
-    }
 
-    public function test_users_can_authenticate_using_the_login_screen(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
+        $response->assertJsonStructure([
+            'token'
         ]);
-
-        $this->assertAuthenticated();
-        $response->assertRedirect(route('dashboard', absolute: false));
-    }
-
-    public function test_users_can_not_authenticate_with_invalid_password(): void
-    {
-        $user = User::factory()->create();
-
-        $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'wrong-password',
-        ]);
-
-        $this->assertGuest();
-    }
-
-    public function test_users_can_logout(): void
-    {
-        $user = User::factory()->create();
-
-        $response = $this->actingAs($user)->post('/logout');
-
-        $this->assertGuest();
-        $response->assertRedirect('/');
     }
 }

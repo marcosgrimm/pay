@@ -2,6 +2,8 @@
 
 namespace App\Services\PaymentMethod;
 
-class Pix extends BasePaymentMethodService
+use App\Contracts\PaymentMethodServiceInterface;
+
+class Pix extends BasePaymentMethodService implements PaymentMethodServiceInterface
 {
 }

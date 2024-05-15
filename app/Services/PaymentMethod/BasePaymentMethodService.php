@@ -4,13 +4,15 @@ namespace App\Services\PaymentMethod;
 
 use App\Models\PaymentMethod;
 use Illuminate\Support\Str;
+use App\Contracts\PaymentMethodServiceInterface;
 
-abstract class BasePaymentMethodService
+abstract class BasePaymentMethodService implements PaymentMethodServiceInterface
 {
     private PaymentMethod $paymentMethodModel;
 
     public function __construct()
     {
+        //defines the payment method model based on the class name (child)
         $class = Str::of(static::class)->classBasename()->kebab()->value();
         $this->paymentMethodModel = PaymentMethod::where('slug', $class)->first();
     }
@@ -26,7 +28,7 @@ abstract class BasePaymentMethodService
         return array_merge($paymentValidationData, ['fee' => $fee]);
     }
 
-    public function validatePayment(float $amount): array
+    protected function validatePayment(float $amount): array
     {
         // return a boolean and do a random test that 70% of cases if true
         $risk = rand(0, 100);
@@ -43,7 +45,7 @@ abstract class BasePaymentMethodService
         ];
     }
 
-    public function calculateFee(float $amount): float
+    private function calculateFee(float $amount): float
     {
         return round($amount * $this->paymentMethodModel->fee, 2);
     }

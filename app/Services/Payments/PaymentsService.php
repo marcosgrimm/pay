@@ -2,6 +2,7 @@
 
 namespace App\Services\Payments;
 
+use App\Contracts\PaymentMethodServiceInterface;
 use App\Enum\PaymentStatusEnum;
 use App\Models\Merchant;
 use App\Models\Payment;
@@ -14,15 +15,14 @@ class PaymentsService
 {
     public function processPayment(Merchant $merchant, $paymentMethodSlug, $nameClient, $clientCpf, $description, $amount): array
     {
-        $paymentMethodService = match ($paymentMethodSlug) {
-            'pix' => new Pix(),
-            'bank-transfer' => new BankTransfer(),
-            'boleto' => new Boleto(),
-            default => function () use ($paymentMethodSlug) {
-                Log::critical('ERROR_PAYMENT_METHOD_NOT_FOUND', ['payment_method_slug' => $paymentMethodSlug]);
-                throw new \Exception('Payment method not found');
-            },
-        };
+        try {
+            $paymentMethodService = $this->getPaymentMethodServiceFromSlug($paymentMethodSlug);
+        } catch (\Exception $e) {
+            return [
+                'status' => (PaymentStatusEnum::FAILED)->value,
+                'risk_percentage' => -1,
+            ];
+        }
 
         $paymentResult = $paymentMethodService->pay($amount);
 
@@ -40,10 +40,9 @@ class PaymentsService
             ]);
         } catch (\Exception $e) {
             Log::critical('ERROR_PAYMENT_NOT_SAVED', ['error' => $e->getMessage()]);
-
             return [
                 'status' => (PaymentStatusEnum::FAILED)->value,
-                'risk_percentage' => $paymentResult['risk_percentage'],
+                'risk_percentage' => -1,
             ];
         }
 
@@ -56,5 +55,22 @@ class PaymentsService
             'status' => $paymentResult['status'],
             'risk_percentage' => $paymentResult['risk_percentage'],
         ];
+    }
+
+    public function getPaymentMethodServiceFromSlug($paymentMethodSlug): PaymentMethodServiceInterface
+    {
+        $paymentMethod = match ($paymentMethodSlug) {
+            'pix' => new Pix(),
+            'bank-transfer' => new BankTransfer(),
+            'boleto' => new Boleto(),
+            default => null,
+        };
+
+        if (!$paymentMethod) {
+            Log::critical('ERROR_PAYMENT_METHOD_NOT_FOUND', ['payment_method_slug' => $paymentMethodSlug]);
+            throw new \Exception("Payment method \"{$paymentMethodSlug}\" not found");
+        }
+
+        return $paymentMethod;
     }
 }

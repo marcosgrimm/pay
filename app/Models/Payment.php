@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use OpenApi\Annotations as OA;
 
 /**
@@ -80,4 +81,12 @@ class Payment extends Model
         'paid_at',
         'merchant_id',
     ];
+
+    /**
+     * @return BelongsTo
+     */
+    function merchant(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Merchant::class);
+    }
 }

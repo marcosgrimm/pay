@@ -22,16 +22,16 @@ class StorePaymentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name_client' => ['required', 'string'],
-            'cpf' => ['required', 'cpf'],
-            'description' => ['required', 'string'],
-            'amount' => ['required', 'decimal:0,2'],
+            'name_client'         => ['required', 'string'],
+            'cpf'                 => ['required', 'cpf', 'formato_cpf'],
+            'description'         => ['required', 'string'],
+            'amount'              => ['required', 'decimal:0,2'],
             'payment_method_slug' => ['required', 'string', 'exists:payment_methods,slug'],
         ];
     }
 
     protected function failedValidation(Validator $validator)
     {
-        throw new HttpResponseException(response()->json($validator->errors(), 422));
+        throw new HttpResponseException(response()->json(['errors' => $validator->errors()], 422));
     }
 }

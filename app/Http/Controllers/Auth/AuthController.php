@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\Auth\AuthService;
 use Firebase\JWT\JWT;
 use OpenApi\Annotations as OA;
 
@@ -36,10 +37,10 @@ class AuthController extends Controller
      *     ),
      * )
      */
-    public function demoRandomToken()
+    public function demoRandomToken(AuthService $authService)
     {
         if (config('app.env') !== 'local') {
-            return response()->json([], 404);
+            return response()->json([], 400);
         }
 
         $merchant = \App\Models\Merchant::inRandomOrder()->first();
@@ -47,11 +48,8 @@ class AuthController extends Controller
             return response()->json([], 404);
         }
 
-        $randomUuid = $merchant->uuid;
-        $token = JWT::encode(['merchant_id' => $randomUuid], config('app.jwt_secret'), 'HS256');
-
         return response()->json([
-            'token' => $token,
+            'token' => $authService->getMerchantToken($merchant),
         ]);
     }
 }

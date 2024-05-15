@@ -78,11 +78,11 @@
                 "tags": [
                     "Payments"
                 ],
-                "summary": "Create a new payment",
+                "summary": "Creates a new payment",
                 "description": "Creates and validates a new payment, charge the fee correspondent to the payment method used and return its status.",
                 "operationId": "e4eb9cbe81835e2edb7d1407e70c872c",
                 "requestBody": {
-                    "description": "Payment data",
+                    "description": "Payment request data",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -103,14 +103,15 @@
                                     },
                                     "cpf": {
                                         "description": "The CPF of the client",
-                                        "type": "string"
+                                        "type": "string",
+                                        "format": "XXX.XXX.XXX-XX"
                                     },
                                     "description": {
                                         "description": "The description of the payment",
                                         "type": "string"
                                     },
                                     "amount": {
-                                        "description": "The amount of the payment",
+                                        "description": "The amount of the payment, digits with 0 to 2 decimal places",
                                         "type": "number",
                                         "format": "float"
                                     }
@@ -123,7 +124,7 @@
                                     "value": {
                                         "name_client": "Pedro Paulo",
                                         "cpf": "759.251.010-30",
-                                        "description": "Bet Grêmio X Palmeiras",
+                                        "description": "Bet Grêmio 3 X 0 Palmeiras",
                                         "amount": 10000000000000,
                                         "payment_method_slug": "boleto"
                                     }
@@ -133,7 +134,7 @@
                                     "value": {
                                         "name_client": "Paulo Pedro",
                                         "cpf": "207.645.680-51",
-                                        "description": "Bet Grêmio X Inter",
+                                        "description": "Bet Grêmio 7 X 1 Inter",
                                         "amount": 123.5,
                                         "payment_method_slug": "pix"
                                     }
@@ -141,9 +142,9 @@
                                 "bank-transfer": {
                                     "summary": "Bank Transfer Payment",
                                     "value": {
-                                        "name_client": "João Paulo",
+                                        "name_client": "João do Pulo",
                                         "cpf": "561.999.390-69",
-                                        "description": "Bet Grêmio X Flamengo",
+                                        "description": "Bet Grêmio 3 X 0   Flamengo",
                                         "amount": 100.22,
                                         "payment_method_slug": "bank-transfer"
                                     }
