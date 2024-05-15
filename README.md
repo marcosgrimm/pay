@@ -20,15 +20,17 @@ Payments is a simple payments system that provides an interface for handling mul
 ## Authentication
 
 1. All API requests must contain a header using [Bearer Authentication](https://swagger.io/docs/specification/authentication/bearer-authentication/).
-2. For this test purpose only a random token can be retrieved when using the endpoint [http://localhost:8000/demo-random-token](http://localhost:8000/demo-random-token
-   ). 
-   2. The response will be as the following:
+2. For this test purpose only a random token can be retrieved when using the endpoint [http://localhost:8000/demo-random-token](http://localhost:8000/demo-random-token). 
+   1. The response will be as the following:
       ```
       {
         "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXJjaGFudF9pZCI6IjdjM2M2MDU2LWNhMTgtNDIwZS1hNWU2LTE3YThlMTk4YmE1NSJ9.BdRe2U0MzyiDYQ9ATd9J4-30rvdyKwZf_psQDZ-Ddyo"
       }
       ```
-   3. The token value (`eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXJjaGFudF9pZCI6IjdjM2M2MDU2LWNhMTgtNDIwZS1hNWU2LTE3YThlMTk4YmE1NSJ9.BdRe2U0MzyiDYQ9ATd9J4-30rvdyKwZf_psQDZ-Ddyo`) needs to be included used in each API request.
+   2. The token value needs to be included used in each API request `Authorization` header:
+      ```
+      Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtZXJjaGFudF9pZCI6IjdjM2M2MDU2LWNhMTgtNDIwZS1hNWU2LTE3YThlMTk4YmE1NSJ9.BdRe2U0MzyiDYQ9ATd9J4-30rvdyKwZf_psQDZ-Ddyo
+      ```
 
 ## Documentation
 Once the server is running the following documentation resources can be accessed:
